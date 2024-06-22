@@ -1,0 +1,178 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0 0 60px 0;
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+header {
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+}
+
+#map-section {
+    width: 100%;
+    max-width: 1000px;
+    height: 300px;
+    margin-bottom: 2rem;
+    border: 2px solid #2c3e50;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+#tanks-overview {
+    display: flex;
+    flex: 1 0 31%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1100px;
+}
+
+.tank-card, .add-tank-btn {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    width: 230px;
+    height: 300px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative; /* Add this to position the delete button */
+}
+
+.delete-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    color: #444444;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    cursor: pointer;
+    display: none;
+    transition: background-color 0.3s ease;
+}
+
+.delete-btn:hover {
+    background-color: #cccccc;
+}
+
+.tank-card.expanded {
+    width: 330px;
+    height: auto;
+}
+
+.add-tank-btn {
+    background-color: #f5f5f5;
+    font-size: 48px;
+    color: #9e9e9e;
+    border: 2px dashed #9e9e9e;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-tank-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.tank-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tank-container {
+    height: 100%;
+    width: 100px;
+    background-color: #ecf0f1;
+    border: 2px solid #bdc3c7;
+    border-radius: 10px;
+    position: relative;
+    overflow: visible;
+}
+
+.tank-level {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: #3498db;
+    transition: height 0.5s ease-in-out;
+    border-radius: 0 0 8px 8px;
+}
+
+.tank-percentage {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #2c3e50;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+}
+
+.consumption-analysis {
+    flex-grow: 1;
+    margin-left: 1rem;
+}
+
+.chart-container {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.3s ease;
+}
+
+.expanded .chart-container {
+    height: 200px;
+    margin-top: 1rem;
+}
+
+.tank-card.highlighted {
+    background-color: #e3f2fd;
+    border: 1px solid #2196f3;
+    box-shadow: 0 4px 8px #2196f355;
+}
+
+@media (max-width: 1000px) {
+    #tanks-overview {
+        justify-content: center;
+    }
+    
+    .tank-card, .add-tank-btn {
+        width: calc(50% - 1.5rem);
+        max-width: 230px;
+    }
+}
+
+@media (max-width: 768px) {
+    .tank-card, .add-tank-btn {
+        width: 100%;
+        max-width: 280px;
+    }
+}
