@@ -53,7 +53,7 @@ Desenvolvimento e Testes
 Programação dos dispositivos Arduino para leitura do nível de combustível e transmissão via Lora.
 Configuração do servidor para receber, armazenar e apresentar os dados.
 Implementação da interface gráfica do usuário.
-## Fase de Testes:
+Fase de Testes:
 
 Testes de cada componente do sistema.
 Testes de integração para garantir a comunicação entre dispositivos e servidor.
