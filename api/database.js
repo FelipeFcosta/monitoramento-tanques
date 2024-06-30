@@ -3,6 +3,7 @@ const sqlite3 = require('sqlite3').verbose()
 
 const DBSOURCE = "./tanks.db"
 
+
 let db = new sqlite3.Database(DBSOURCE, (err) => {
     if (err) {
         console.error(err.message)
@@ -24,9 +25,9 @@ db.serialize(() => {
             console.error("Error creating 'tank' table:", err.message)
         } else {
             // table newly created, create mock rows
-            const insertTank = 'INSERT INTO tank (name, capacity, level, lat, lng) VALUES (?,?,?,?,?)'
-            db.run(insertTank, ["Tanque 1", 1000, 75, -15.758902, -47.870856])
-            db.run(insertTank, ["Tanque 2", 1500, 50, -15.754902, -47.850740])
+            const insertTank = 'INSERT INTO tank (id, name, capacity, level, lat, lng) VALUES (?,?,?,?,?,?)'
+            db.run(insertTank, [1, "Tanque 1", 1400, 75, -15.758902, -47.870856])
+            db.run(insertTank, [2, "Tanque 2", 1500, 50, -15.754902, -47.850740])
         }
     })
 

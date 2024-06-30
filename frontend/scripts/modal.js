@@ -31,7 +31,7 @@ export function setupModal() {
         e.preventDefault()
 
         const newTank = {   // get new tank info from form
-            id: Number(document.getElementById('tankId').value),
+            id: Number(document.getElementById('tank_id').value),
             name: document.getElementById('tankName').value,
             capacity: parseInt(document.getElementById('tankCapacity').value),
             level: Math.floor(Math.random() * 100),

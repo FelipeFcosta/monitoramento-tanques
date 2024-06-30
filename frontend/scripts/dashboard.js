@@ -3,30 +3,39 @@ import { tanks, measurements, calculateRefillTime, calculateConsumptionRate, get
 import { createChart, createTankCard } from './tankCard.js'
 import { openModal, setupModal } from './modal.js'
 
+const socket = io("http://localhost:3000");
+
 export function initializeDashboard() {
-
+    
     initMap()
-
+    
+    // connect to server socket for new measurement update
+    socket.on('newMeasurement', (measurement) => {
+        console.log("newMeasurement!", measurement)
+        measurements[measurement.tank_id].push(measurement);
+        updateUIForNewMeasurement(measurement);
+    });
+    
     const tanksOverview = document.getElementById('tanks-overview')
-
+    
     // fetch tanks
     fetch('http://localhost:3000/api/tanks')
-        .then(response => response.json())
-        .then(data => {
-            data.data.forEach(tank => {
-                tanks.push(tank)
-                addMarker(tank)
-
-                const card = createTankCard(tank)
-                tanksOverview.appendChild(card, tanksOverview.lastElementChild)
-
-                updateTankMeasurements(tank)
-            })
-
-            const addButton = createAddTankButton()
-            tanksOverview.appendChild(addButton)
-
+    .then(response => response.json())
+    .then(data => {
+        data.data.forEach(tank => {
+            tanks.push(tank)
+            addMarker(tank)
+            
+            const card = createTankCard(tank)
+            tanksOverview.appendChild(card, tanksOverview.lastElementChild)
+            
+            updateTankMeasurements(tank)
         })
+        
+        const addButton = createAddTankButton()
+        tanksOverview.appendChild(addButton)
+        
+    })
     
     setupModal()
 }
@@ -55,7 +64,7 @@ export function addNewTank(tank) {
         const card = createTankCard(newTank)
         const tanksOverview = document.getElementById('tanks-overview')
         tanksOverview.insertBefore(card, tanksOverview.lastElementChild)
-    
+        
         document.getElementById('newTankForm').reset()
     })
 }
@@ -63,34 +72,44 @@ export function addNewTank(tank) {
 export function updateTankMeasurements(tank) {
     measurements[tank.id] = []
     console.log(tank)
-    fetch(`http://localhost:3000/api/tanks/${tank.id}/measurements`)
-        .then(response => response.json())
-        .then(data => {
-            data.data.forEach(measurement => {
-                measurements[tank.id].push(measurement)
-            })
-
-            // update chart
-            createChart(tank)
-
-            // update card info
-            const refill = document.getElementById(`refill-${tank.id}`)
-            const consumption = document.getElementById(`consumption-${tank.id}`)
-            refill.textContent = `Reabastecimento em ${calculateRefillTime(tank)} dias`
-            consumption.textContent = `Taxa de Consumo: ${calculateConsumptionRate(tank)}L/dia`
-
-            // update tank level            
-            const tankLevelDiv = document.getElementById(`card-${tank.id}`).querySelector('.tank-level')
-            tankLevelDiv.setAttribute("style", `height:${getCurrentLevelPercentage(tank)}%`);
-            const tankLevelSpan = tankLevelDiv.querySelector('.tank-percentage')
-            tankLevelSpan.textContent = `${getCurrentLevelPercentage(tank)}%`
-
+    fetch(`http://localhost:3000/api/tanks/${tank.id}/measurements`)    // get tank measurements
+    .then(response => response.json())
+    .then(data => {
+        data.data.forEach(measurement => {
+            measurements[tank.id].push(measurement)
         })
+        
+        updateUIForNewMeasurement(measurements[tank.id][measurements[tank.id].length-1])
+        
+        console.log(measurements[tank.id])
+        
+    })
+    
+}
+
+function updateUIForNewMeasurement(measurement) {
+    const tank = tanks.find(t => t.id == measurement.tank_id)
+    
+    // update chart
+    createChart(tank)
+    
+    // update card info
+    const refill = document.getElementById(`refill-${tank.id}`)
+    const consumption = document.getElementById(`consumption-${tank.id}`)
+    refill.textContent = `Reabastecimento em ${calculateRefillTime(tank)} dias`
+    consumption.textContent = `Taxa de Consumo: ${calculateConsumptionRate(tank)}L/dia`
+    
+    // update tank level            
+    const tankLevelDiv = document.getElementById(`card-${tank.id}`).querySelector('.tank-level')
+    tankLevelDiv.setAttribute("style", `height:${getCurrentLevelPercentage(tank)}%`);
+    const tankLevelSpan = tankLevelDiv.querySelector('.tank-percentage')
+    tankLevelSpan.textContent = `${getCurrentLevelPercentage(tank)}%`
+    
 }
 
 
 export function deleteTank(tank) {
-
+    
     fetch(`http://localhost:3000/api/tanks/${tank.id}`, {
         method: "DELETE",
     })
@@ -99,9 +118,9 @@ export function deleteTank(tank) {
         console.log("data:", data)
         // remove the tank from the tanks array
         tanks.splice(tanks.findIndex(t => t.id === tank.id), 1)
-
+        
         removeMarker(tank)
-
+        
         // remove tank card from DOM
         const card = document.getElementById(`card-${tank.id}`)
         card.remove()
