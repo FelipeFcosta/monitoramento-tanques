@@ -1,5 +1,5 @@
 import { addMarker, initMap, removeMarker } from './map.js'
-import { tanks, measurements } from './tankData.js'
+import { tanks, measurements, calculateRefillTime, calculateConsumptionRate, getCurrentLevel, getCurrentLevelPercentage } from './tankData.js'
 import { createChart, createTankCard } from './tankCard.js'
 import { openModal, setupModal } from './modal.js'
 
@@ -70,10 +70,22 @@ export function updateTankMeasurements(tank) {
                 measurements[tank.id].push(measurement)
             })
 
-            console.log("tank", tank.id, "measurements: ", measurements[tank.id])
+            // update chart
             createChart(tank)
+
+            // update card info
+            const refill = document.getElementById(`refill-${tank.id}`)
+            const consumption = document.getElementById(`consumption-${tank.id}`)
+            refill.textContent = `Reabastecimento em ${calculateRefillTime(tank)} dias`
+            consumption.textContent = `Taxa de Consumo: ${calculateConsumptionRate(tank)}L/dia`
+
+            // update tank level            
+            const tankLevelDiv = document.getElementById(`card-${tank.id}`).querySelector('.tank-level')
+            tankLevelDiv.setAttribute("style", `height:${getCurrentLevelPercentage(tank)}%`);
+            const tankLevelSpan = tankLevelDiv.querySelector('.tank-percentage')
+            tankLevelSpan.textContent = `${getCurrentLevelPercentage(tank)}%`
+
         })
-        
 }
 
 

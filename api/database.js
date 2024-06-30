@@ -43,8 +43,12 @@ db.serialize(() => {
         } else {
             // table newly created, create mock rows
             const insertMeasurement = 'INSERT INTO measurement (timecode, level, tank_id) VALUES (?,?,?)'
-            db.run(insertMeasurement, ["2024-01-01 10:00:00", 75, 1])
-            db.run(insertMeasurement, ["2024-01-01 10:01:00", 50, 1])
+            db.run(insertMeasurement, ["2024-01-01 10:00:00", 980, 1])
+            db.run(insertMeasurement, ["2024-01-01 10:01:00", 950, 1])
+            db.run(insertMeasurement, ["2024-01-01 10:02:00", 910, 1])
+            db.run(insertMeasurement, ["2024-01-01 10:00:00", 1480, 2])
+            db.run(insertMeasurement, ["2024-01-01 10:01:00", 1350, 2])
+            db.run(insertMeasurement, ["2024-01-01 10:02:00", 1210, 2])
         }
     })
 })

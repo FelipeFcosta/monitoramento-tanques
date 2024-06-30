@@ -1,3 +1,5 @@
+import { getCurrentLevel } from "./tankData.js"
+
 let map
 let markers = {}
 let lastClickedTank = null
@@ -51,7 +53,7 @@ function removeLastHighlight(lastClickedTank) {
 export function addMarker(tank) {
     const marker = L.marker([tank.lat, tank.lng])
         .addTo(map)
-        .bindPopup(`<b>${tank.name}</b><br>Nível: ${tank.level}%`)
+        .bindPopup(`<b>${tank.name}</b><br>Nível: ${getCurrentLevel(tank)/tank.capacity}%`)
     markers[tank.id] = marker
 }
 

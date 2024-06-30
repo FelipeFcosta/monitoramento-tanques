@@ -7,8 +7,8 @@ export const tanks = [
 export const measurements = {}
 
 export function calculateConsumptionRate(tank) {
-    const history = tank.consumptionHistory
-    if (history) {
+    if (measurements[tank.id]) {
+        const history = measurements[tank.id].map(m => m.level)
         const dailyConsumption = history.map((val, index) => 
             index > 0 ? history[index-1] - val : 0
         ).slice(1)
@@ -19,7 +19,23 @@ export function calculateConsumptionRate(tank) {
 }
 
 export function calculateRefillTime(tank) {
-    const currentLevel = tank.level / 100 * tank.capacity
-    const consumptionRate = calculateConsumptionRate(tank)
-    return Math.floor(currentLevel / consumptionRate)
+    if (measurements[tank.id] && measurements[tank.id].length > 0) {
+        const currentLevelLiters = getCurrentLevel(tank)
+        const consumptionRate = calculateConsumptionRate(tank)
+        if (consumptionRate != 0)
+            return Math.floor(currentLevelLiters / consumptionRate)
+    }
+    return 0
+}
+
+export function getCurrentLevel(tank) {
+    let currentLevel = 0
+    if (measurements[tank.id] && measurements[tank.id].length > 0) {
+        currentLevel = measurements[tank.id][measurements[tank.id].length-1].level
+    }
+    return currentLevel
+}
+
+export function getCurrentLevelPercentage(tank) {
+    return Math.floor(100*getCurrentLevel(tank)/tank.capacity)
 }

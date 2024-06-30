@@ -1,5 +1,5 @@
 import { highlightTank, removeMarker } from './map.js'
-import { calculateConsumptionRate, calculateRefillTime, measurements } from './tankData.js'
+import { calculateConsumptionRate, calculateRefillTime, getCurrentLevel, getCurrentLevelPercentage, measurements } from './tankData.js'
 import { deleteTank } from './dashboard.js'
 
 export function createTankCard(tank) {
@@ -11,14 +11,14 @@ export function createTankCard(tank) {
         <p>ID: ${tank.id}</p>
         <div class="tank-info">
             <div class="tank-container">
-                <div class="tank-level" style="height: ${tank.level}%;">
-                    <span class="tank-percentage">${tank.level}%</span>
+                <div class="tank-level" style="height: ${getCurrentLevelPercentage(tank)}%;">
+                    <span class="tank-percentage">${getCurrentLevel(tank)/tank.capacity}%</span>
                 </div>
             </div>
             <div class="consumption-analysis">
                 <p>Capacidade: ${tank.capacity}L</p>
-                <p consumption-${tank.id}>Taxa de Consumo: ${calculateConsumptionRate(tank)}L/dia</p>
-                <p refill-${tank.id}>Reabastecimento em: ${calculateRefillTime(tank)} dias</p>
+                <p id="consumption-${tank.id}">Taxa de Consumo: ${calculateConsumptionRate(tank)}L/dia</p>
+                <p id="refill-${tank.id}">Reabastecimento em: ${calculateRefillTime(tank)} dias</p>
             </div>
         </div>
         <div class="chart-container">
