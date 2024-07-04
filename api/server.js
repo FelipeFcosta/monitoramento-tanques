@@ -19,7 +19,7 @@ const io = new Server(server, {
 		origin: "http://localhost:5000",
 		methods: ["GET", "POST"]
 	}
-});
+})
 
 app.use(cors(corsOptions))
 
@@ -109,11 +109,11 @@ app.post('/api/tanks/:tank_id/measurements', (req, res) => {
 
 // listener for socket connections
 io.on('connection', (socket) => {
-	console.log('New client connected');
+	console.log('New client connected')
 	socket.on('disconnect', () => {
-		console.log('Client disconnected');
-	});
-});
+		console.log('Client disconnected')
+	})
+})
 
 server.listen(port, () => {
 	console.log(`Server running at http://127.0.0.1:${port}`)

@@ -1,9 +1,9 @@
 import { addMarker, initMap, removeMarker } from './map.js'
-import { tanks, measurements, calculateRefillTime, calculateConsumptionRate, getCurrentLevel, getCurrentLevelPercentage } from './tankData.js'
+import { tanks, measurements, getCurrentLevel, getCurrentLevelPercentage, getRefillTimeString, getConsumptionRateString } from './tankData.js'
 import { createChart, createTankCard } from './tankCard.js'
 import { openModal, setupModal } from './modal.js'
 
-const socket = io("http://localhost:3000");
+const socket = io("http://localhost:3000")
 
 export function initializeDashboard() {
     
@@ -12,9 +12,10 @@ export function initializeDashboard() {
     // connect to server socket for new measurement update
     socket.on('newMeasurement', (measurement) => {
         console.log("newMeasurement!", measurement)
-        measurements[measurement.tank_id].push(measurement);
-        updateUIForNewMeasurement(measurement);
-    });
+        measurement.level = Number(measurement.level)
+        measurements[measurement.tank_id].push(measurement)
+        updateUIForNewMeasurement(measurement)
+    })
     
     const tanksOverview = document.getElementById('tanks-overview')
     
@@ -76,6 +77,7 @@ export function updateTankMeasurements(tank) {
     .then(response => response.json())
     .then(data => {
         data.data.forEach(measurement => {
+            measurement.level = Number(measurement.level)
             measurements[tank.id].push(measurement)
         })
         
@@ -89,19 +91,34 @@ export function updateTankMeasurements(tank) {
 
 function updateUIForNewMeasurement(measurement) {
     const tank = tanks.find(t => t.id == measurement.tank_id)
+
+    addMarker(tank)
     
+    const bigChart = document.getElementById(`big-chart-${tank.id}`)
     // update chart
-    createChart(tank)
+    if (bigChart && document.getElementById('statsModal').style.display != 'none') {
+        createChart(tank, `big-chart-${tank.id}`)
+    } else {
+        createChart(tank)
+    }
+    
     
     // update card info
     const refill = document.getElementById(`refill-${tank.id}`)
     const consumption = document.getElementById(`consumption-${tank.id}`)
-    refill.textContent = `Reabastecimento em ${calculateRefillTime(tank)} dias`
-    consumption.textContent = `Taxa de Consumo: ${calculateConsumptionRate(tank)}L/dia`
+
+    const currentLevel = document.getElementById(`current-level-${tank.id}`)
+    currentLevel.innerHTML = `Nível Atual: <strong><i>${getCurrentLevel(tank)}L`
+    
+    let refillTime = getRefillTimeString(tank)
+    let consumptionRate = getConsumptionRateString(tank)
+
+    refill.innerHTML = `Reabastecer em:<br><strong><i>${refillTime}</i></strong>`
+    consumption.innerHTML = `Taxa de Consumo:<br><strong><i>${consumptionRate}</i></strong>`
     
     // update tank level            
     const tankLevelDiv = document.getElementById(`card-${tank.id}`).querySelector('.tank-level')
-    tankLevelDiv.setAttribute("style", `height:${getCurrentLevelPercentage(tank)}%`);
+    tankLevelDiv.setAttribute("style", `height:${getCurrentLevelPercentage(tank)}%`)
     const tankLevelSpan = tankLevelDiv.querySelector('.tank-percentage')
     tankLevelSpan.textContent = `${getCurrentLevelPercentage(tank)}%`
     

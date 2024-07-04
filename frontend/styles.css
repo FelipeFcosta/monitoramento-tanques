@@ -22,8 +22,8 @@ main {
 
 #map-section {
     width: 100%;
-    max-width: 1000px;
-    height: 300px;
+    max-width: 900px;
+    height: 350px;
     margin-bottom: 2rem;
     border: 2px solid #2c3e50;
     border-radius: 8px;
@@ -79,6 +79,20 @@ main {
     cursor: pointer;
     display: none;
     transition: background-color 0.3s ease;
+}
+
+.stats-btn:hover {
+    background-color: #2980b9;
+}
+
+.stats-btn {
+    margin-top: 10px;
+    padding: 10px 10px;
+    background-color: #5c90b3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .tank-card.expanded {
@@ -137,6 +151,7 @@ main {
 }
 
 .consumption-analysis {
+    width: 100%;
     flex-grow: 1;
     margin-left: 1rem;
 }
@@ -150,6 +165,36 @@ main {
 .expanded .chart-container {
     height: 200px;
     margin-top: 1rem;
+}
+
+.big-chart-container {
+    width: 100%;
+    height: 400px;
+    margin-bottom: 20px;
+}
+
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.stats-table th, .stats-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.stats-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.stats-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.stats-table tr:hover {
+    background-color: #f5f5f5;
 }
 
 .tank-card.highlighted {
@@ -168,10 +213,11 @@ main {
     width: 100%;
     height: 100%;
     background-color: #0004;
+    overflow: hidden;
 }
   
 
-.modal-content {
+.modal-new-tank-content {
     position: absolute;
     background-color: white;
     top: 50%;
@@ -183,6 +229,23 @@ main {
     max-width: 500px;
     border-radius: 8px;
     box-shadow: 0 4px 6px #0001;
+}
+
+.modal-stats-content {
+    position: absolute;
+    background-color: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 25px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 800px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px #0001;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
 }
 
 #minimap {

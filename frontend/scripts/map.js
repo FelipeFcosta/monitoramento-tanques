@@ -1,4 +1,4 @@
-import { getCurrentLevel } from "./tankData.js"
+import { getCurrentLevelPercentage } from "./tankData.js"
 
 let map
 let markers = {}
@@ -51,18 +51,22 @@ function removeLastHighlight(lastClickedTank) {
 }
 
 export function addMarker(tank) {
+    removeMarker(tank)
+
     const marker = L.marker([tank.lat, tank.lng])
         .addTo(map)
-        .bindPopup(`<b>${tank.name}</b><br>Nível: ${getCurrentLevel(tank)/tank.capacity}%`)
+        .bindPopup(`<b>${tank.name}</b><br>Nível: ${getCurrentLevelPercentage(tank)}%`)
     markers[tank.id] = marker
 }
 
 export function removeMarker(tank) {
-    map.removeLayer(markers[tank.id])
-    delete markers[tank.id]
+    if (markers[tank.id]) {
+        map.removeLayer(markers[tank.id])
+        delete markers[tank.id]
 
-    // Clear highlight if this was the last clicked tank
-    if (lastClickedTank && lastClickedTank.id === tank.id) {
-        lastClickedTank = null
+        // Clear highlight if this was the last clicked tank
+        if (lastClickedTank && lastClickedTank.id === tank.id) {
+            lastClickedTank = null
+        }
     }
 }

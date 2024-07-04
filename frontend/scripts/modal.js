@@ -1,4 +1,5 @@
 import { addNewTank } from './dashboard.js'
+import { measurements } from './tankData.js'
 
 let minimap
 let minimapMarker

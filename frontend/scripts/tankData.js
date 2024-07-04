@@ -6,14 +6,48 @@ export const tanks = [
 
 export const measurements = {}
 
+export function getRefillTimeString(tank) {
+    const refillTimeS = calculateRefillTime(tank)
+    const refillTimeM = refillTimeS / 60
+    const refillTimeH = refillTimeM / 60
+    const refillTimeD = refillTimeH / 24
+
+    if (refillTimeM < 2)   return `${Math.floor(refillTimeS)} segundos`
+    if (refillTimeH < 2)   return `${Math.floor(refillTimeM)} minutos`
+    if (refillTimeD < 2)   return `${Math.floor(refillTimeH)} horas`
+    else                   return `${Math.floor(refillTimeD)} dias`
+}
+
+export function getConsumptionRateString(tank) {
+    const consumptionRate_L_S = calculateConsumptionRate(tank);
+    const consumptionRate_L_M = consumptionRate_L_S * 60;
+    const consumptionRate_L_H = consumptionRate_L_M * 60;
+    const consumptionRate_L_D = consumptionRate_L_H * 24;
+
+    if (consumptionRate_L_M > 100)      return `${consumptionRate_L_S.toFixed(1)} L/s`
+    else if (consumptionRate_L_H > 100) return `${consumptionRate_L_M.toFixed(1)} L/min`
+    else if (consumptionRate_L_D > 100) return `${consumptionRate_L_H.toFixed(1)} L/h`
+    else                              return `${consumptionRate_L_D.toFixed(1)} L/dia`
+}
+
+
 export function calculateConsumptionRate(tank) {
     if (measurements[tank.id]) {
-        const history = measurements[tank.id].map(m => m.level)
-        const dailyConsumption = history.map((val, index) => 
-            index > 0 ? history[index-1] - val : 0
-        ).slice(1)
-        const avgConsumption = dailyConsumption.reduce((a, b) => a + b, 0) / dailyConsumption.length
-        return avgConsumption.toFixed(2)
+        const history = measurements[tank.id]
+        const consumptionRates = history.map((measurement, index) => {
+            if (index > 0) {
+                const prevMeasurement = history[index - 1]
+                const timeDiff = (new Date(measurement.timecode) - new Date(prevMeasurement.timecode)) / 1000; // time difference in seconds
+                const levelDiff = prevMeasurement.level - measurement.level
+                if (timeDiff != 0)
+                    return levelDiff / timeDiff; // consumption rate per second
+            }
+            return 0
+        }).slice(1);    // discard first element
+        
+        // average consumption rate
+        const avgConsumptionRate = consumptionRates.reduce((a, b) => a + b, 0) / consumptionRates.length
+        return avgConsumptionRate
     }
     return 0
 }
@@ -22,11 +56,14 @@ export function calculateRefillTime(tank) {
     if (measurements[tank.id] && measurements[tank.id].length > 0) {
         const currentLevelLiters = getCurrentLevel(tank)
         const consumptionRate = calculateConsumptionRate(tank)
-        if (consumptionRate != 0)
-            return Math.floor(currentLevelLiters / consumptionRate)
+        console.log("consumptionRate", consumptionRate)
+        if (consumptionRate != 0) {
+            return Math.floor(currentLevelLiters / consumptionRate) // refill time in seconds
+        }
     }
     return 0
 }
+
 
 export function getCurrentLevel(tank) {
     let currentLevel = 0
@@ -37,5 +74,6 @@ export function getCurrentLevel(tank) {
 }
 
 export function getCurrentLevelPercentage(tank) {
-    return Math.floor(100*getCurrentLevel(tank)/tank.capacity)
+    if (tank.capacity > 0) return Math.floor(100*getCurrentLevel(tank)/tank.capacity)
+    return 0
 }
