@@ -90,20 +90,21 @@ app.get('/api/tanks/:tank_id/measurements', (req, res) => {
 
 // add new measurement for a tank
 app.post('/api/tanks/:tank_id/measurements', (req, res) => {
-	const { timecode, level, tank_id } = req.body
-	const tank_id_param =  req.params.tank_id
+	const { timecode, level, _ } = req.body
+	const tank_id =  req.params.tank_id
 	const insertTank = 'INSERT INTO measurement (timecode, level, tank_id) VALUES (?, ?, ?)'
-	db.run(insertTank, [timecode, level, tank_id_param], err => {
+	db.run(insertTank, [timecode, level, tank_id], err => {
 		if (err) {
 			res.status(400).json({"error": err.message})
 			return
 		}
 		res.json({
 			"message": "success measurement post",
-			"data": { timecode, level, tank_id_param }
+			"data": { timecode, level, tank_id }
 		})
 		// notify client of new measurement performed
-		io.emit('newMeasurement', { timecode, level, tank_id_param })
+
+		io.emit('newMeasurement', {tank_id})
 		console.log("newMeasurement emitted")
 	})
 })

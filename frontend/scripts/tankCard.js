@@ -18,9 +18,9 @@ export function createTankCard(tank) {
                 </div>
             </div>
             <div class="consumption-analysis">
-                <p>ID: ${tank.id}</p>
+                <p>ID: T${tank.id}</p>
                 <p>Capacidade: <strong><i>${tank.capacity}L</i></strong></p>
-                <p id="current-level-${tank.id}">Nível Atual: <strong><i>${getCurrentLevel(tank)}L</i></strong></p>
+                <p id="current-level-${tank.id}">Nível atual: <strong><i>${getCurrentLevel(tank)}L</i></strong></p>
                 <p id="consumption-${tank.id}">Taxa de Consumo: <strong><i>${consumptionRate}</i></strong></p>
                 <p id="refill-${tank.id}">Reabastecer em: <strong><i>${refillTime}</i></strong></p>
             </div>
@@ -162,8 +162,13 @@ function showStatsModal(tank) {
     
     // Create big chart using the existing createChart function
     createChart(tank, `big-chart-${tank.id}`)
+    addTable(modalContent, tank)
     
-    // Add statistics table
+    // show stats modal
+    statsModal.style.display = 'block'
+}
+
+export function addTable(modalContent, tank) {
     const table = document.createElement('table')
     table.className = 'stats-table'
     table.innerHTML = `
@@ -179,9 +184,9 @@ function showStatsModal(tank) {
         <tbody>
             ${measurements[tank.id].map(m => `
                 <tr>
-                    <td>${m.id}</td>
+                    <td>M${m.id}</td>
                     <td>${m.level}</td>
-                    <td>${((m.level / tank.capacity) * 100).toFixed(2)}%</td>
+                    <td>${((m.level / tank.capacity) * 100).toFixed(2)}</td>
                     <td>${m.timecode}</td>
                     <td>${m.rtt}</td>
                 </tr>
@@ -189,7 +194,20 @@ function showStatsModal(tank) {
         </tbody>
     `
     modalContent.appendChild(table)
+}
+
+
+export function addMeasurementToTable(tank, measurement) {
+    const table = document.querySelector('.stats-table tbody');
     
-    // show stats modal
-    statsModal.style.display = 'block'
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td>M${measurement.id}</td>
+        <td>${measurement.level}</td>
+        <td>${((measurement.level / tank.capacity) * 100).toFixed(2)}</td>
+        <td>${measurement.timecode}</td>
+        <td>${measurement.rtt}</td>
+    `;
+    
+    table.appendChild(newRow);
 }

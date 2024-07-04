@@ -1,6 +1,6 @@
 import { addMarker, initMap, removeMarker } from './map.js'
 import { tanks, measurements, getCurrentLevel, getCurrentLevelPercentage, getRefillTimeString, getConsumptionRateString } from './tankData.js'
-import { createChart, createTankCard } from './tankCard.js'
+import { addMeasurementToTable, createChart, createTankCard } from './tankCard.js'
 import { openModal, setupModal } from './modal.js'
 
 const socket = io("http://localhost:3000")
@@ -10,11 +10,18 @@ export function initializeDashboard() {
     initMap()
     
     // connect to server socket for new measurement update
-    socket.on('newMeasurement', (measurement) => {
-        console.log("newMeasurement!", measurement)
-        measurement.level = Number(measurement.level)
-        measurements[measurement.tank_id].push(measurement)
-        updateUIForNewMeasurement(measurement)
+    socket.on('newMeasurement', ({tank_id}) => {
+        console.log("newMeasurement received!")
+        fetch(`http://localhost:3000/api/tanks/${tank_id}/measurements`)    // get tank last measurement
+        .then(response => response.json())
+        .then(data => {
+            const newMeasurement = data.data.slice(-1).pop()
+            console.log("measurements", data)
+            console.log(data.data)
+            console.log("newmeasurement: ", newMeasurement)
+            measurements[tank_id].push(newMeasurement)
+            updateUIForNewMeasurement(newMeasurement)
+        })
     })
     
     const tanksOverview = document.getElementById('tanks-overview')
@@ -97,7 +104,10 @@ function updateUIForNewMeasurement(measurement) {
     const bigChart = document.getElementById(`big-chart-${tank.id}`)
     // update chart
     if (bigChart && document.getElementById('statsModal').style.display != 'none') {
+        const modalContent = statsModal.querySelector('.modal-stats-content')
         createChart(tank, `big-chart-${tank.id}`)
+        addMeasurementToTable(tank, measurement)
+
     } else {
         createChart(tank)
     }
@@ -108,7 +118,7 @@ function updateUIForNewMeasurement(measurement) {
     const consumption = document.getElementById(`consumption-${tank.id}`)
 
     const currentLevel = document.getElementById(`current-level-${tank.id}`)
-    currentLevel.innerHTML = `Nível Atual: <strong><i>${getCurrentLevel(tank)}L`
+    currentLevel.innerHTML = `Nível atual: <strong><i>${getCurrentLevel(tank)}L`
     
     let refillTime = getRefillTimeString(tank)
     let consumptionRate = getConsumptionRateString(tank)

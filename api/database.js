@@ -26,8 +26,8 @@ db.serialize(() => {
         } else {
             // table newly created, create mock rows
             const insertTank = 'INSERT INTO tank (id, name, capacity, level, lat, lng) VALUES (?,?,?,?,?,?)'
-            db.run(insertTank, [1, "Tanque 1", 1400, 75, -15.758902, -47.870856])
-            db.run(insertTank, [2, "Tanque 2", 1500, 50, -15.754902, -47.850740])
+            // db.run(insertTank, [1, "Tanque 1", 1400, 75, -15.758902, -47.870856])
+            // db.run(insertTank, [2, "Tanque 2", 1500, 50, -15.754902, -47.850740])
         }
     })
 
@@ -43,13 +43,13 @@ db.serialize(() => {
             console.error("Error creating 'measurement' table:", err.message)
         } else {
             // table newly created, create mock rows
-            const insertMeasurement = 'INSERT INTO measurement (timecode, level, tank_id) VALUES (?,?,?)'
-            db.run(insertMeasurement, ["2024-01-01 10:00:00", 980, 1])
-            db.run(insertMeasurement, ["2024-01-01 10:01:00", 950, 1])
-            db.run(insertMeasurement, ["2024-01-01 10:02:00", 910, 1])
-            db.run(insertMeasurement, ["2024-01-01 10:00:00", 1480, 2])
-            db.run(insertMeasurement, ["2024-01-01 10:01:00", 1350, 2])
-            db.run(insertMeasurement, ["2024-01-01 10:02:00", 1210, 2])
+            // const insertMeasurement = 'INSERT INTO measurement (timecode, level, tank_id) VALUES (?,?,?)'
+            // db.run(insertMeasurement, ["2024-01-01 10:00:00", 980, 1])
+            // db.run(insertMeasurement, ["2024-01-01 10:01:00", 950, 1])
+            // db.run(insertMeasurement, ["2024-01-01 10:02:00", 910, 1])
+            // db.run(insertMeasurement, ["2024-01-01 10:00:00", 1480, 2])
+            // db.run(insertMeasurement, ["2024-01-01 10:01:00", 1350, 2])
+            // db.run(insertMeasurement, ["2024-01-01 10:02:00", 1210, 2])
         }
     })
 })

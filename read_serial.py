@@ -4,7 +4,7 @@ import time
 import requests
 from datetime import datetime
 
-SERIAL_PORT = 'COM3'  # Windows COM port for arduino
+SERIAL_PORT = 'COM4'  # Windows COM port for arduino
 BAUD_RATE = 9600
 API_URL = 'http://localhost:3000/api/tanks'
 
