@@ -83,7 +83,6 @@ export function calculateCapacity(tank) {
         calculatedCapacity = (area * tank.height).toFixed(4) * 1000
     }
 
-    tank.capacity = calculatedCapacity
     return calculatedCapacity
 }
 

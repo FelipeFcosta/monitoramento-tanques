@@ -60,16 +60,19 @@ export function setupModal() {
             name: document.getElementById('tankName').value,
             capacity: parseInt(document.getElementById('tankCapacity').value),
             type: document.getElementById('tankType').value,
-            level: capacity,
-            length: parseFloat(document.getElementById('tankLength')),
-            diameter: parseFloat(document.getElementById('tankDiameter')),
-            height: parseFloat(document.getElementById('tankHeight')),
+            length: parseFloat(document.getElementById('tankLength').value),
+            diameter: parseFloat(document.getElementById('tankDiameter').value),
+            height: parseFloat(document.getElementById('tankHeight').value),
             lat: parseFloat(document.getElementById('tankLat').value),
             lng: parseFloat(document.getElementById('tankLng').value),
-        
         }
-        
-        measurements[newTank.id] = Array.from({length: 8}, () => Math.floor(Math.random() * newTank.capacity)),
+
+        if (!newTank.lat || !newTank.lng) {
+            newTank.lat = -15.762755
+            newTank.lng = -47.868930
+        }
+
+        measurements[newTank.id] = []
         
         addNewTank(newTank)
         

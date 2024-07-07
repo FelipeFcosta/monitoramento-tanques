@@ -1,5 +1,5 @@
 import { addMarker, initMap, removeMarker } from './map.js'
-import { tanks, measurements, getCurrentLevel, getCurrentLevelPercentage, getRefillTimeString, getConsumptionRateString } from './tankData.js'
+import { tanks, measurements, getCurrentLevel, getCurrentLevelPercentage, getRefillTimeString, getConsumptionRateString, calculateCapacity } from './tankData.js'
 import { addMeasurementToTable, createChart, createTankCard } from './tankCard.js'
 import { openModal, setupModal } from './modal.js'
 
@@ -16,9 +16,6 @@ export function initializeDashboard() {
         .then(response => response.json())
         .then(data => {
             const newMeasurement = data.data.slice(-1).pop()
-            console.log("measurements", data)
-            console.log(data.data)
-            console.log("newmeasurement: ", newMeasurement)
             measurements[tank_id].push(newMeasurement)
             updateUIForNewMeasurement(newMeasurement)
         })
@@ -57,6 +54,8 @@ function createAddTankButton() {
 }
 
 export function addNewTank(tank) {
+    console.log("adding new tank", tank)
+    // calculateCapacity(tank);
     fetch('http://localhost:3000/api/tanks', {
         method: "POST",
         headers: {
@@ -99,7 +98,7 @@ export function updateTankMeasurements(tank) {
 
 function updateUIForNewMeasurement(measurement) {
     const tank = tanks.find(t => t.id == measurement.tank_id)
-
+    tank.capacity = calculateCapacity(tank)
     addMarker(tank)
     
     const bigChart = document.getElementById(`big-chart-${tank.id}`)
@@ -118,7 +117,7 @@ function updateUIForNewMeasurement(measurement) {
     const consumption = document.getElementById(`consumption-${tank.id}`)
 
     const currentLevel = document.getElementById(`current-level-${tank.id}`)
-    currentLevel.innerHTML = `Nível atual: <strong><i>${getCurrentLevel(tank)}L`
+    currentLevel.innerHTML = `Nível atual: <strong><i>${getCurrentLevel(tank).toFixed(1)}L`
     
     let refillTime = getRefillTimeString(tank)
     let consumptionRate = getConsumptionRateString(tank)

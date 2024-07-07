@@ -45,16 +45,16 @@ app.get('/api/tanks', (req, res) => {
 
 // add new tank
 app.post('/api/tanks', (req, res) => {
-	const { id, name, level, capacity, lat, lng } = req.body
+	const { id, name, capacity, type, diameter, length, height, lat, lng } = req.body
 	const insertTank = 'INSERT INTO tank (id, name, capacity, type, diameter, length, height, lat, lng) VALUES (?,?,?,?,?,?,?,?,?)'
-	db.run(insertTank, [id, name, level, capacity, lat, lng], err => {
+	db.run(insertTank, [id, name, capacity, type, diameter, length, height, lat, lng], err => {
 		if (err) {
 			res.status(400).json({"error": err.message})
 			return
 		}
 		res.json({
 			"message": "success tank post",
-			"data": { id, name, level, capacity, lat, lng }
+			"data": { id, name, capacity, type, diameter, length, height, lat, lng }
 		})
 	})
 })

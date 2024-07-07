@@ -6,7 +6,7 @@ export function createTankCard(tank) {
     let refillTime = getRefillTimeString(tank)
     let consumptionRate = getConsumptionRateString(tank)
 
-    calculateCapacity(tank);
+    // calculateCapacity(tank);
 
     const card = document.createElement('div')
     card.className = 'tank-card'
@@ -73,6 +73,8 @@ export function createChart(tank, chartId = `chart-${tank.id}`) {
 
     if (measurements[tank.id]) {
         measurements[tank.id].forEach(m => {
+            console.log("m:", m)
+            console.log("split:", m.timecode)
             levels.push(calculateLevel(tank, m.distanceCm))
             times.push(new Date(`${m.timecode.split(' ')[0]}T${m.timecode.split(' ')[1]}`))
         })
@@ -123,6 +125,7 @@ export function createChart(tank, chartId = `chart-${tank.id}`) {
                         callback: function(value, index, values) {
                             if (chartId.startsWith('big')) {
                                 const date = new Date(value)
+                                date.setHours(date.getHours() - 3);
                                 const dateFormated = `${date.toLocaleDateString('pt-BR')} ${date.toISOString().slice(11,19)}`
                                 return dateFormated;  // This will return "HH:mm"
                             }

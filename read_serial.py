@@ -10,7 +10,9 @@ API_URL = 'http://localhost:3000/api/tanks'
 
 def send_to_server(data):
     print("sending to server")
+    data['distanceCm'] = data['distance_cm']
     data['tank_id'] = int(data['tank_id'])
+    print(data)
     # post new measurement
     response = requests.post(f"{API_URL}/{data['tank_id']}/measurements", json=data)
     print(f"Sent to server. Response: {response}")
