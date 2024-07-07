@@ -4,11 +4,35 @@ import { measurements } from './tankData.js'
 let minimap
 let minimapMarker
 
+document.addEventListener('DOMContentLoaded', function() {
+    const tankTypeSelect = document.getElementById('tankType');
+    const horizontalDimensions = document.getElementById('horizontalDimensions');
+    const verticalDimensions = document.getElementById('verticalDimensions');
+    
+    tankTypeSelect.addEventListener('change', function() {
+        if (this.value === 'horizontalCylinder') {
+            horizontalDimensions.style.display = 'flex';
+            verticalDimensions.style.display = 'none';
+        } else if (this.value === 'verticalCylinder') {
+            horizontalDimensions.style.display = 'none';
+            verticalDimensions.style.display = 'flex';
+        } else {
+            horizontalDimensions.style.display = 'none';
+            verticalDimensions.style.display = 'none';
+        }
+    });
+
+    const dimensionInputs = document.querySelectorAll('#horizontalDimensions input, #verticalDimensions input');
+    dimensionInputs.forEach(input => {
+        input.addEventListener('input', calculateMaxCapacity);
+    });
+});
+
 export function setupModal() {
     const modal = document.getElementById('newTankModal')
     const closeBtn = modal.querySelector('.close')
     const form = document.getElementById('newTankForm')
-
+    
     // close button click
     closeBtn.onclick = () => {
         modal.style.display = 'none'
@@ -27,23 +51,28 @@ export function setupModal() {
             }
         }
     }
-
+    
     form.onsubmit = (e) => {
         e.preventDefault()
-
+        
         const newTank = {   // get new tank info from form
             id: Number(document.getElementById('tank_id').value),
             name: document.getElementById('tankName').value,
             capacity: parseInt(document.getElementById('tankCapacity').value),
-            level: Math.floor(Math.random() * 100),
+            type: document.getElementById('tankType').value,
+            level: capacity,
+            length: parseFloat(document.getElementById('tankLength')),
+            diameter: parseFloat(document.getElementById('tankDiameter')),
+            height: parseFloat(document.getElementById('tankHeight')),
             lat: parseFloat(document.getElementById('tankLat').value),
-            lng: parseFloat(document.getElementById('tankLng').value)
+            lng: parseFloat(document.getElementById('tankLng').value),
+        
         }
-
+        
         measurements[newTank.id] = Array.from({length: 8}, () => Math.floor(Math.random() * newTank.capacity)),
-
+        
         addNewTank(newTank)
-
+        
         modal.style.display = 'none'
         if (minimap) {
             minimap.remove()
@@ -55,7 +84,7 @@ export function setupModal() {
 export function openModal() {
     const modal = document.getElementById('newTankModal')
     modal.style.display = 'block'
-
+    
     // Initialize minimap
     if (!minimap) {
         minimap = L.map('minimap').setView([-15.762755, -47.868930], 10)
@@ -74,7 +103,34 @@ export function openModal() {
             updateLatLng(e.target.getLatLng())
             
         })
+    }    
+}
+
+
+function calculateMaxCapacity() {
+    const tankType = document.getElementById('tankType').value;
+    const capacityInput = document.getElementById('tankCapacity');
+    let maxCapacity;
+
+    if (tankType === 'horizontalCylinder') {
+        const diameter = parseFloat(document.getElementById('tankDiameter').value) || 0
+        const length = parseFloat(document.getElementById('tankLength').value) || 0
+        const r = (diameter/2)
+
+        maxCapacity = Math.PI * r*r * length
+        console.log("maxCapacity: ", maxCapacity)
+
+    } else if (tankType === 'verticalCylinder') {
+        const height = parseFloat(document.getElementById('tankHeight').value) || 0
+        const diameter = parseFloat(document.getElementById('tankDiameterVertical').value) || 0
+        maxCapacity = Math.round(Math.PI * (diameter/2)*(diameter/2) * height)
     }
+
+    maxCapacity = maxCapacity.toFixed(4)
+    let maxCapacityLiters = 1000*maxCapacity;
+
+    capacityInput.max = maxCapacityLiters;
+    capacityInput.value = maxCapacityLiters;
 }
 
 

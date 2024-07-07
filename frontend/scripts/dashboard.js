@@ -12,7 +12,7 @@ export function initializeDashboard() {
     // connect to server socket for new measurement update
     socket.on('newMeasurement', ({tank_id}) => {
         console.log("newMeasurement received!")
-        fetch(`http://localhost:3000/api/tanks/${tank_id}/measurements`)    // get tank last measurement
+        fetch(`http://localhost:3000/api/tanks/${tank_id}/measurements`)    // get tank latest measurement
         .then(response => response.json())
         .then(data => {
             const newMeasurement = data.data.slice(-1).pop()
@@ -84,7 +84,8 @@ export function updateTankMeasurements(tank) {
     .then(response => response.json())
     .then(data => {
         data.data.forEach(measurement => {
-            measurement.level = Number(measurement.level)
+            console.log("rssi:", measurement.rssi)
+            measurement.distanceCm = Number(measurement.distanceCm)
             measurements[tank.id].push(measurement)
         })
         
@@ -107,7 +108,6 @@ function updateUIForNewMeasurement(measurement) {
         const modalContent = statsModal.querySelector('.modal-stats-content')
         createChart(tank, `big-chart-${tank.id}`)
         addMeasurementToTable(tank, measurement)
-
     } else {
         createChart(tank)
     }

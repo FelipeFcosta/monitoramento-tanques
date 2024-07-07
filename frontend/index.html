@@ -23,7 +23,7 @@
             <!-- Tanques e botão de adicionar inseridos via script -->
         </section>
     </main>
-
+    
     
     <div id="newTankModal" class="modal">
         <div class="modal-new-tank-content">
@@ -32,30 +32,52 @@
             <form id="newTankForm">
                 <label for="tankName">Nome do Tanque:</label>
                 <input type="text" id="tankName" required>
-
+                
                 <label for="tank_id">ID do Tanque:</label>
-                <input type="number" id="tank_id" required>
-             
+                <input type="number" min="0" id="tank_id" required>
+                
+                <div class="tank-type-container">
+                    <div class="tank-type-select">
+                        <label for="tankType">Tipo do Tanque:</label>
+                        <select id="tankType" required>
+                            <option value="horizontalCylinder">Cilíndrico Horizontal</option>
+                            <option value="verticalCylinder">Cilíndrico Vertical</option>
+                        </select>
+                    </div>
+                    
+                    <div class="tank-dimensions">
+                        <div id="horizontalDimensions">
+                            <input type="number" id="tankDiameter" step="0.01" placeholder="Diâmetro (metros)">
+                            <input type="number" id="tankLength" step="0.01" placeholder="Comprimento (metros)">
+                        </div>
+                        
+                        <div id="verticalDimensions" style="display: none;">
+                            <input type="number" id="tankHeight" step="0.01" placeholder="Altura (metros)">
+                            <input type="number" id="tankDiameterVertical" step="0.01" placeholder="Diâmetro (metros)">
+                        </div>
+                    </div>
+                </div>
+                
                 <label for="tankCapacity">Capacidade (litros):</label>
-                <input type="number" id="tankCapacity" required>
-            
+                <input type="number" id="tankCapacity" readonly disabled="disabled">
+                
                 <label>Localização:</label>
                 <div id="minimap" style="height: 200px; margin-bottom: 10px;"></div>
                 
                 <input type="hidden" id="tankLat">
                 <input type="hidden" id="tankLng">
-            
+                
                 <button type="submit">Adicionar Tanque</button>
-          </form>
+            </form>
         </div>
     </div>
-
+    
     <div id="statsModal" class="modal">
         <div class="modal-stats-content">
             <!-- Content will be dynamically added here -->
         </div>
     </div>
-
+    
     <script type='module' src="scripts/map.js"></script>
     <script type='module' src="scripts/tankCard.js"></script>
     <script type='module' src="scripts/tankData.js"></script>

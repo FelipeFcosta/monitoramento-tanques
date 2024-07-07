@@ -4,7 +4,13 @@ export const tanks = [
     // { id: 'T003', name: 'Tanque 3', level: 25, capacity: 2000, consumptionHistory: [1900, 1800, 1700, 1600, 1500, 1400, 1300, 1200], lat: -15.758902, lng: -47.855740 },
 ]
 
+export const TankType = {
+    HORIZONTAL_CYLINDER: "horizontal-cylinder",
+    VERTICAL_CYLINDER: "vertical-cylindric",
+};
+
 export const measurements = {}
+
 
 export function getRefillTimeString(tank) {
     const refillTimeS = calculateRefillTime(tank)
@@ -38,7 +44,7 @@ export function calculateConsumptionRate(tank) {
             if (index > 0) {
                 const prevMeasurement = history[index - 1]
                 const timeDiff = (new Date(measurement.timecode) - new Date(prevMeasurement.timecode)) / 1000; // time difference in seconds
-                const levelDiff = prevMeasurement.level - measurement.level
+                const levelDiff = calculateLevel(tank, prevMeasurement.distanceCm) - calculateLevel(tank, measurement.distanceCm)
                 if (timeDiff != 0)
                     return levelDiff / timeDiff; // consumption rate per second
             }
@@ -65,10 +71,45 @@ export function calculateRefillTime(tank) {
 }
 
 
+export function calculateCapacity(tank) {
+    let calculatedCapacity = 0
+    if (tank.type == "horizontalCylinder") {
+        let r = tank.diameter / 2
+        let area = Math.PI * r * r
+        calculatedCapacity = (area * tank.length).toFixed(4) * 1000
+    } else if (tank.type == "verticalCylinder") {
+        let r = tank.diameter / 2
+        let area = Math.PI * r * r
+        calculatedCapacity = (area * tank.height).toFixed(4) * 1000
+    }
+
+    tank.capacity = calculatedCapacity
+    return calculatedCapacity
+}
+
+
+export function calculateLevel(tank, distanceCm) {
+    let level = 0
+    if (tank.type == "horizontalCylinder") {
+        let filledHeight = tank.diameter - distanceCm/100.0
+        let r = tank.diameter / 2
+        let filledArea = Math.acos((r - filledHeight)/r) * r*r - (r - filledHeight) * Math.sqrt(2 * r * filledHeight - filledHeight*filledHeight)
+        level = (filledArea * tank.length).toFixed(4) * 1000
+    } else if (tank.type == "verticalCylinder") {
+        let r = tank.diameter / 2
+        let filledHeight = tank.height - distanceCm/100.0
+        let area = Math.PI * r * r
+        level = (area * filledHeight).toFixed(4) * 1000
+    }
+
+    return level
+}
+
 export function getCurrentLevel(tank) {
     let currentLevel = 0
     if (measurements[tank.id] && measurements[tank.id].length > 0) {
-        currentLevel = measurements[tank.id][measurements[tank.id].length-1].level
+        let currentDistanceCm = measurements[tank.id][measurements[tank.id].length-1].distanceCm
+        currentLevel = calculateLevel(tank, currentDistanceCm);
     }
     return currentLevel
 }

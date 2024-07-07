@@ -63,7 +63,7 @@ main {
     position: relative; /* Add this to position the delete button */
 }
 
- 
+
 .delete-btn:hover,
 .delete-btn:focus {
     color: #2c3e50;
@@ -215,7 +215,7 @@ main {
     background-color: #0004;
     overflow: hidden;
 }
-  
+
 
 .modal-new-tank-content {
     position: absolute;
@@ -253,7 +253,7 @@ main {
     height: 200px;
     margin-bottom: 10px;
 }
-  
+
 .close {
     color: #aaa;
     float: right;
@@ -261,28 +261,29 @@ main {
     font-weight: bold;
     cursor: pointer;
 }
-  
+
+
 .close:hover,
 .close:focus {
     color: #2c3e50;
     text-decoration: none;
 }
-  
+
 #newTankForm {
     display: flex;
     flex-direction: column;
 }
 
-  
+
 #newTankForm label {
     margin-top: 10px;
 }
-  
+
 #newTankForm input {
     padding: 5px;
     margin-top: 5px;
 }
-  
+
 #newTankForm button {
     margin-top: 20px;
     padding: 10px;
@@ -292,10 +293,48 @@ main {
     border-radius: 4px;
     cursor: pointer;
 }
-  
+
 #newTankForm button:hover {
     background-color: #3498db;
 }
+
+.tank-type-container {
+    display: flex;
+    margin-top: 10px;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.tank-type-select
+.tank-dimensions {
+    width: 100%;
+    flex: 1;
+}
+
+#tankType {
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+}
+
+#horizontalDimensions,
+#verticalDimensions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#horizontalDimensions input,
+#verticalDimensions input {
+    width: 100%;
+    padding: 5px;
+}
+
+.modal-new-tank-content {
+    width: 90%;
+    max-width: 500px;
+}
+
 /*------------------------------*/
 
 @media (max-width: 1000px) {

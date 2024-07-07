@@ -1,10 +1,12 @@
 import { highlightTank, removeMarker } from './map.js'
-import { getConsumptionRateString, getCurrentLevel, getCurrentLevelPercentage, getRefillTimeString, measurements } from './tankData.js'
+import { calculateCapacity, calculateLevel, getConsumptionRateString, getCurrentLevel, getCurrentLevelPercentage, getRefillTimeString, measurements } from './tankData.js'
 import { deleteTank } from './dashboard.js'
 
 export function createTankCard(tank) {
     let refillTime = getRefillTimeString(tank)
     let consumptionRate = getConsumptionRateString(tank)
+
+    calculateCapacity(tank);
 
     const card = document.createElement('div')
     card.className = 'tank-card'
@@ -71,7 +73,7 @@ export function createChart(tank, chartId = `chart-${tank.id}`) {
 
     if (measurements[tank.id]) {
         measurements[tank.id].forEach(m => {
-            levels.push(m.level)
+            levels.push(calculateLevel(tank, m.distanceCm))
             times.push(new Date(`${m.timecode.split(' ')[0]}T${m.timecode.split(' ')[1]}`))
         })
     }
@@ -175,20 +177,22 @@ export function addTable(modalContent, tank) {
         <thead>
             <tr>
                 <th>ID</th>
+                <th>Distância (cm)</th>
                 <th>Nível (litros)</th>
                 <th>Nível (%)</th>
                 <th>Timecode</th>
-                <th>RTT</th>
+                <th>RSI</th>
             </tr>
         </thead>
         <tbody>
             ${measurements[tank.id].map(m => `
                 <tr>
                     <td>M${m.id}</td>
-                    <td>${m.level}</td>
-                    <td>${((m.level / tank.capacity) * 100).toFixed(2)}</td>
+                    <td>${m.distanceCm}</td>
+                    <td>${calculateLevel(tank, m.distanceCm)}</td>
+                    <td>${((calculateLevel(tank, m.distanceCm) / tank.capacity) * 100).toFixed(2)}</td>
                     <td>${m.timecode}</td>
-                    <td>${m.rtt}</td>
+                    <td>${m.rssi}</td>
                 </tr>
             `).join('')}
         </tbody>
@@ -203,10 +207,11 @@ export function addMeasurementToTable(tank, measurement) {
     const newRow = document.createElement('tr');
     newRow.innerHTML = `
         <td>M${measurement.id}</td>
-        <td>${measurement.level}</td>
-        <td>${((measurement.level / tank.capacity) * 100).toFixed(2)}</td>
+        <td>${measurement.distanceCm}</td>
+        <td>${calculateLevel(tank, measurement.distanceCm)}</td>
+        <td>${((calculateLevel(tank, measurement.distanceCm) / tank.capacity) * 100).toFixed(2)}</td>
         <td>${measurement.timecode}</td>
-        <td>${measurement.rtt}</td>
+        <td>${measurement.rssi}</td>
     `;
     
     table.appendChild(newRow);
