@@ -1,5 +1,5 @@
 import { addNewTank } from './dashboard.js'
-import { measurements } from './tankData.js'
+import { calculateCapacity, measurements } from './tankData.js'
 
 let minimap
 let minimapMarker
@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const tankTypeSelect = document.getElementById('tankType');
     const horizontalDimensions = document.getElementById('horizontalDimensions');
     const verticalDimensions = document.getElementById('verticalDimensions');
+
+    const tankDiameterInput = document.getElementById('tankDiameter');
+    const tankLengthInput = document.getElementById('tankLength');
+    const tankHeightInput = document.getElementById('tankHeight');
+    const tankDiameterVerticalInput = document.getElementById('tankDiameterVertical');
+
     
     tankTypeSelect.addEventListener('change', function() {
         if (this.value === 'horizontalCylinder') {
@@ -20,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
             horizontalDimensions.style.display = 'none';
             verticalDimensions.style.display = 'none';
         }
+
     });
 
     const dimensionInputs = document.querySelectorAll('#horizontalDimensions input, #verticalDimensions input');
@@ -54,7 +61,7 @@ export function setupModal() {
     
     form.onsubmit = (e) => {
         e.preventDefault()
-        
+
         const newTank = {   // get new tank info from form
             id: Number(document.getElementById('tank_id').value),
             name: document.getElementById('tankName').value,
@@ -71,6 +78,11 @@ export function setupModal() {
             newTank.lat = -15.762755
             newTank.lng = -47.868930
         }
+
+        if (!newTank.length)   newTank.length = 1
+        if (!newTank.diameter) newTank.diameter = 1
+        if (!newTank.height)   newTank.height = 1
+        if (!newTank.capacity) newTank.capacity = calculateCapacity(newTank);
 
         measurements[newTank.id] = []
         

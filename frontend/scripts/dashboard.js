@@ -21,7 +21,10 @@ export function initializeDashboard() {
         })
     })
     
-    const tanksOverview = document.getElementById('tanks-overview')
+    const addTankContainer = document.getElementById('add-tank-container')
+
+    const addButton = createAddTankButton()
+    addTankContainer.appendChild(addButton)
     
     // fetch tanks
     fetch('http://localhost:3000/api/tanks')
@@ -32,14 +35,12 @@ export function initializeDashboard() {
             addMarker(tank)
             
             const card = createTankCard(tank)
-            tanksOverview.appendChild(card, tanksOverview.lastElementChild)
+            const tankList = document.getElementById('tank-list')
+            tankList.appendChild(card, tankList.lastElementChild)
             
             updateTankMeasurements(tank)
-        })
-        
-        const addButton = createAddTankButton()
-        tanksOverview.appendChild(addButton)
-        
+        })        
+       
     })
     
     setupModal()
@@ -48,7 +49,7 @@ export function initializeDashboard() {
 function createAddTankButton() {
     const button = document.createElement('div')
     button.className = 'add-tank-btn'
-    button.innerHTML = '+'
+    button.innerHTML = 'Adicionar tanque'
     button.addEventListener('click', openModal)
     return button
 }
@@ -69,16 +70,16 @@ export function addNewTank(tank) {
         tanks.push(newTank)
         addMarker(newTank)
         const card = createTankCard(newTank)
-        const tanksOverview = document.getElementById('tanks-overview')
-        tanksOverview.insertBefore(card, tanksOverview.lastElementChild)
+        const tankList = document.getElementById('tank-list')
+        tankList.appendChild(card)
         
         document.getElementById('newTankForm').reset()
     })
 }
 
 export function updateTankMeasurements(tank) {
-    measurements[tank.id] = []
     console.log(tank)
+    measurements[tank.id] = []
     fetch(`http://localhost:3000/api/tanks/${tank.id}/measurements`)    // get tank measurements
     .then(response => response.json())
     .then(data => {
@@ -87,10 +88,11 @@ export function updateTankMeasurements(tank) {
             measurement.distanceCm = Number(measurement.distanceCm)
             measurements[tank.id].push(measurement)
         })
-        
-        updateUIForNewMeasurement(measurements[tank.id][measurements[tank.id].length-1])
-        
-        console.log(measurements[tank.id])
+
+        if (measurements[tank.id]) {
+            updateUIForNewMeasurement(measurements[tank.id][measurements[tank.id].length-1])
+            console.log(measurements[tank.id])
+        }
         
     })
     

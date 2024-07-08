@@ -6,7 +6,8 @@ export function createTankCard(tank) {
     let refillTime = getRefillTimeString(tank)
     let consumptionRate = getConsumptionRateString(tank)
 
-    // calculateCapacity(tank);
+    if (tank.capacity == 0)
+        tank.capacity = calculateCapacity(tank);
 
     const card = document.createElement('div')
     card.className = 'tank-card'
@@ -21,7 +22,7 @@ export function createTankCard(tank) {
             </div>
             <div class="consumption-analysis">
                 <p>ID: T${tank.id}</p>
-                <p>Capacidade: <strong><i>${tank.capacity}L</i></strong></p>
+                <p>Capacidade: <strong><i>${tank.capacity.toFixed(1)}L</i></strong></p>
                 <p id="current-level-${tank.id}">Nível atual: <strong><i>${getCurrentLevel(tank)}L</i></strong></p>
                 <p id="consumption-${tank.id}">Taxa de Consumo: <strong><i>${consumptionRate}</i></strong></p>
                 <p id="refill-${tank.id}">Reabastecer em: <strong><i>${refillTime}</i></strong></p>
@@ -73,8 +74,6 @@ export function createChart(tank, chartId = `chart-${tank.id}`) {
 
     if (measurements[tank.id]) {
         measurements[tank.id].forEach(m => {
-            console.log("m:", m)
-            console.log("split:", m.timecode)
             levels.push(calculateLevel(tank, m.distanceCm))
             times.push(new Date(`${m.timecode.split(' ')[0]}T${m.timecode.split(' ')[1]}`))
         })

@@ -4,22 +4,48 @@ body {
     padding: 0 0 60px 0;
     background-color: #f0f0f0;
     font-family: 'Roboto', Arial, sans-serif;
+    font-weight: 400;
     color: #333;
+    overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6, p, input, select, button {
-    font-family: Helvetica, Arial, sans-serif;
+#add-tank-container {
+    width: 200px;
+    max-width: 1100px;
+    margin-bottom: 1rem;
+    text-align: center;
 }
 
-header {
-    background-color: #2c3e50;
+.add-tank-btn {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.add-tank-btn:hover {
+    background-color: #2980b9;
+}
+
+#header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    background-color: #0e1317;
     color: white;
     text-align: left;
-    padding: 1.5rem 0;
+    vertical-align: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: 60px;
+    line-height: 60px;
+    z-index: 1000;
 }
 
-header h1 {
+#header h1 {
     margin: 0;
     margin-left: 20px;
     font-size: 1.5rem;
@@ -30,18 +56,20 @@ header h1 {
 
 main {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    padding: 1rem;
+    height: 100%;
 }
 
-#map-section {
-    width: 100%;
-    max-width: 900px;
-    height: 350px;
-    margin-bottom: 2rem;
+#map-container {
+    position: fixed;
+    top: 60px;
+    z-index: 0;
+    width: 35%;
+    height: 100vh;
+    /* margin-bottom: 2rem; */
     border: 2px solid #2c3e50;
-    border-radius: 8px;
+    /* border-radius: 8px; */
     overflow: hidden;
 }
 
@@ -51,16 +79,32 @@ main {
 }
 
 #tanks-overview {
+    position: absolute;
+    left: 35%;
+    top: 60px;
+    width: 65%;
+    padding-top: 15px;
+    padding-left: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    /* width: 100%; */
+    max-width: 1100px;
+}
+
+#tank-list {
     display: flex;
     flex: 1 0 31%;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: left;
     gap: 1.5rem;
     width: 100%;
     max-width: 1100px;
 }
 
-.tank-card, .add-tank-btn {
+.tank-card {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -115,18 +159,6 @@ main {
     height: auto;
 }
 
-.add-tank-btn {
-    background-color: #f5f5f5;
-    font-size: 48px;
-    color: #9e9e9e;
-    border: 2px dashed #9e9e9e;
-    justify-content: center;
-    align-items: center;
-}
-
-.add-tank-btn:hover {
-    background-color: #e0e0e0;
-}
 
 .tank-info {
     display: flex;
@@ -222,7 +254,7 @@ main {
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
+    z-index: 1001;
     left: 0;
     top: 0;
     width: 100%;
@@ -353,18 +385,18 @@ main {
 /*------------------------------*/
 
 @media (max-width: 1000px) {
-    #tanks-overview {
+    #tank-list {
         justify-content: center;
     }
     
-    .tank-card, .add-tank-btn {
+    .tank-card {
         width: calc(50% - 1.5rem);
         max-width: 230px;
     }
 }
 
 @media (max-width: 768px) {
-    .tank-card, .add-tank-btn {
+    .tank-card {
         width: 100%;
         max-width: 280px;
     }

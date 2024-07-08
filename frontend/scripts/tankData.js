@@ -40,19 +40,34 @@ export function getConsumptionRateString(tank) {
 export function calculateConsumptionRate(tank) {
     if (measurements[tank.id]) {
         const history = measurements[tank.id]
+
+        let lastFillIndex = history.findLastIndex((m, i) => 
+            i > 0 && calculateLevel(tank, m.distanceCm) > calculateLevel(tank, history[i-1].distanceCm)
+        );
+
+        if (!lastFillIndex || lastFillIndex <= 0) lastFillIndex = 0
+
         const consumptionRates = history.map((measurement, index) => {
-            if (index > 0) {
+            if (index > lastFillIndex) {
+                console.log("index-1", index-1, "level", calculateLevel(tank, history[index-1].distanceCm))
+                console.log("index", index, "level", calculateLevel(tank, history[index].distanceCm))
                 const prevMeasurement = history[index - 1]
                 const timeDiff = (new Date(measurement.timecode) - new Date(prevMeasurement.timecode)) / 1000; // time difference in seconds
                 const levelDiff = calculateLevel(tank, prevMeasurement.distanceCm) - calculateLevel(tank, measurement.distanceCm)
+
+                console.log("timeDiff", timeDiff)
+                console.log("levelDiff", levelDiff)
+
                 if (timeDiff != 0)
                     return levelDiff / timeDiff; // consumption rate per second
             }
             return 0
         }).slice(1);    // discard first element
+
+        console.log("consumptionRates", consumptionRates)
         
         // average consumption rate
-        const avgConsumptionRate = consumptionRates.reduce((a, b) => a + b, 0) / consumptionRates.length
+        const avgConsumptionRate = consumptionRates.reduce((a, b) => a + b, 0) / (consumptionRates.length - lastFillIndex)
         return avgConsumptionRate
     }
     return 0
