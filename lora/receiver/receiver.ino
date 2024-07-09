@@ -7,6 +7,7 @@ String contents = "";
 
 int msgCount = 0;
 
+int msgCountWindow = 0;
 
 // configured data
 int margin = 500;
@@ -23,13 +24,14 @@ unsigned long currentLoopTime;
 unsigned long nextWakeTime = 0;
 
 const unsigned long windowStart = 0;
-const unsigned long LISTEN_WINDOW = 2500;
+const unsigned long LISTEN_WINDOW = 3000;
+
+int retransmissions = 0;
 
  
 void setup() {
   Serial.begin(9600);
-  while (!Serial)
-;
+  while (!Serial);
  
   // Setup LoRa module
   Serial.println("LoRa Receiver");
@@ -44,7 +46,9 @@ void setup() {
 void loop() {
   currentLoopTime = millis(); // 150
   if (currentLoopTime >= nextWakeTime) {
+    msgCountWindow = 0;
     Serial.println("listening for data...");
+
     if (msgCount != 0) {
       nextWakeTime = currentLoopTime + receiveInterval - margin;
       Serial.print("will wake up again in ");
@@ -54,6 +58,12 @@ void loop() {
       while (millis() - currentLoopTime <= LISTEN_WINDOW) {
         listenForData();
       }
+      contents = "";
+
+      if (msgCountWindow != 0)
+        retransmissions += msgCountWindow-1;
+      msgCountWindow = 0;
+      Serial.println("total number of retransmissions: " + String(retransmissions));
       Serial.println("going to sleep...");
     } else {
       listenForData();
@@ -63,6 +73,7 @@ void loop() {
 
 
 void listenForData() {
+  contents = "";
   // Try to parse packet
   int packetSize = LoRa.parsePacket();
  
@@ -74,7 +85,6 @@ void listenForData() {
       Serial.println("synchronizing...");
     }
 
- 
     // Read packet
     while (LoRa.available()) {
       contents += (char)LoRa.read();
@@ -94,7 +104,6 @@ void listenForData() {
     sequenceNumber = jsonDoc["seq"];
 
 
-
     // if (sequenceNumber == ackNumber)
     // if (isTankMonitored(tankId))
 
@@ -106,11 +115,11 @@ void listenForData() {
  
     contents = "";
     msgCount++;
+    msgCountWindow++;
   }
 }
 
 void sendACK() {
-  delay(500);
   Serial.println("sending ACK"+ String(ackNumber) + ":" + tankId);
   LoRa.beginPacket();
   LoRa.print("ACK");
@@ -118,8 +127,6 @@ void sendACK() {
   LoRa.print(":");
   LoRa.print(tankId);
   LoRa.endPacket();
-
-  delay(500);
 
   LoRa.receive();
 }
@@ -136,7 +143,7 @@ void sendJsonToSerial() {
   serializeJson(outputDoc, outputMessage);
 
   // ler isso pelo python!
-  Serial.println("data:");
+  Serial.println("data:" + String(msgCountWindow));
   Serial.println(outputMessage);
 }
 

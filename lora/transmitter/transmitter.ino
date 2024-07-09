@@ -18,7 +18,7 @@ unsigned long currentLoopTime;
 unsigned long nextTransmissionTime = 0;
 unsigned long ackTimeout;
 unsigned long goToSleepTime = 0;
-const unsigned long TRANSMISSION_WINDOW = 2000;
+const unsigned long TRANSMISSION_WINDOW = 3000;
 
 int transmissionInterval = 8000;
 
@@ -26,6 +26,20 @@ bool dataSent = false;
 
 String tankId = "20";
 int sequenceNumber = 0;
+
+
+// Structure to store packet data
+struct PacketData {
+  float distanceCm;
+  int sequenceNumber;
+};
+
+const int MAX_UNACKED_PACKETS = 10;
+PacketData unackedPackets[MAX_UNACKED_PACKETS];
+int unackedCount = 0;
+
+bool ackReceived = false;
+
 
 
 void setup() {
@@ -48,21 +62,50 @@ void setup() {
 
 void loop() {
   currentLoopTime = millis();
-  if (currentLoopTime >= nextTransmissionTime) {
-    Serial.println("waking up...");
-    wakeUp();
-    sendData();
-    nextTransmissionTime = currentLoopTime + transmissionInterval;  // 8100
-    Serial.print("will wake up again in ");
-    Serial.print(nextTransmissionTime - currentLoopTime);
-    Serial.println(" microsseconds");
+  if (sequenceNumber == 0 || currentLoopTime >= nextTransmissionTime) {
+    ackReceived = false;
+    if (sequenceNumber > 0) {
+      Serial.println("waking up...");
+      wakeUp();
+      sendData();
+      nextTransmissionTime = currentLoopTime + transmissionInterval;  // 8100
+      Serial.print("will wake up again in ");
+      Serial.print(nextTransmissionTime - currentLoopTime);
+      Serial.println(" microsseconds");
+    } else {
+      sendData();
+    }
 
-    Serial.println("waiting for ACK" + String(sequenceNumber));
+    Serial.println("waiting for ACK" + String(sequenceNumber+1));
+
     ackTimeout = currentLoopTime + TRANSMISSION_WINDOW;
     while (millis() <= ackTimeout) {
-      listenForACK();
+      if (listenForACK()) {
+        ackReceived = true;
+        break;
+      }
     }
-    Serial.println("going to sleep...");
+
+    if (sequenceNumber == 0) return;
+
+    if (ackReceived == false) {
+      Serial.println("ack timeout!");
+      Serial.println("storing [" + String(distanceCm) + ", " + String(sequenceNumber) + "]");
+      unackedPackets[unackedCount].distanceCm = distanceCm;
+      unackedPackets[unackedCount].sequenceNumber = sequenceNumber;
+      unackedCount++;
+      if (unackedCount > 10) unackedCount = 0;
+      sequenceNumber++;
+	    Serial.println("going to sleep...");
+      return;
+    } else {
+      unackedCount = 0;
+    }
+    
+    if (sequenceNumber > 1) {
+	    Serial.println("going to sleep...");
+	    sequenceNumber++;
+    }
   }
 }
 
@@ -85,8 +128,35 @@ float getDistance() {
 }
 
 
+void sendUnackedData() {
+  // unacked packets
+  for (int i = 0; i < unackedCount; i++) {
+    Serial.print("sending ");
+    Serial.println(String(unackedPackets[i].distanceCm));
+
+    // Send packet in json format
+    StaticJsonDocument<200> doc;
+    doc["tank_id"] = tankId;
+    doc["distance_cm"] = unackedPackets[i].distanceCm;
+    doc["seq"] = unackedPackets[i].sequenceNumber;
+
+    String message;
+    serializeJson(doc, message);
+
+    LoRa.beginPacket();
+    LoRa.print(message);
+    LoRa.endPacket();
+
+    Serial.print("sent data: ");
+    Serial.println(message);
+
+    delay(100);
+  }
+}
 
 void sendData() {
+  sendUnackedData();
+
   distanceCm = getDistance();
 
   Serial.print("sending ");
@@ -96,7 +166,7 @@ void sendData() {
   StaticJsonDocument<200> doc;
   doc["tank_id"] = tankId;
   doc["distance_cm"] = distanceCm;
-  doc["seq"] = sequenceNumber++;
+  doc["seq"] = sequenceNumber;
 
   String message;
   serializeJson(doc, message);
@@ -115,7 +185,7 @@ void sendData() {
 }
 
 
-void listenForACK() {
+bool listenForACK() {
   int packetSize = LoRa.parsePacket();
 
   if (packetSize) {
@@ -125,8 +195,21 @@ void listenForACK() {
       }
 
       const String receivedTankId = contents.substring(contents.lastIndexOf(":")+1);
-      if (contents.startsWith("ACK" + String(sequenceNumber)) && receivedTankId == tankId) {
+      if (contents.startsWith("ACK" + String(sequenceNumber+1)) && receivedTankId == tankId) {
         Serial.println("ACK " + contents +" received!");
+
+        if (sequenceNumber == 0) {
+          sequenceNumber++;
+	        nextTransmissionTime = currentLoopTime + transmissionInterval;
+          Serial.println("synchronizing...");
+          Serial.print("will wake up again in ");
+          Serial.print(nextTransmissionTime - millis());
+          Serial.println(" microsseconds");
+        }
+
+        contents = "";
+        dataSent = false;
+        return true;
       }
     } else {  // timeout! (retransmission?)
       Serial.println("ACK timeout!");
@@ -134,9 +217,11 @@ void listenForACK() {
     }
   }
 
-
   contents = "";
   dataSent = false;
+  return false;
+
+
 }
 
 void wakeUp() {

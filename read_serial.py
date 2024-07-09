@@ -2,11 +2,13 @@ import serial
 import json
 import time
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 SERIAL_PORT = 'COM7'  # Windows COM port for arduino
 BAUD_RATE = 9600
 API_URL = 'http://localhost:3000/api/tanks'
+
+allData = []
 
 def send_to_server(data):
     print("sending to server")
@@ -23,22 +25,27 @@ def main():
     print(f"listening on {SERIAL_PORT}")
     print(f"baud rate: {BAUD_RATE}")
 
-    readNextLine = False
+    windowData = []
 
     while True:
         try:
             line = ser.readline().decode('utf-8')
             print(line)
-            if line.startswith("data:"):
-                readNextLine = True
-            elif readNextLine:
-                
-                readNextLine = False
-                data = json.loads(line) # deserialize
-                data['timecode'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            while (line.startswith("data:")):
+                line = ser.readline().decode('utf-8')
+
+                data = json.loads(line)
+                allData.append(data)
+                windowData.append(data)     # windowData: [data:0, data:1]
+
+            for i in range(len(windowData)):
+                data = windowData[i]
+                data['timecode'] = (datetime.now() - (len(windowData)-i-1)*timedelta(seconds=8)).strftime("%Y-%m-%d %H:%M:%S")
                 print(f"received data: {data}")
 
                 send_to_server(data)
+            windowData = []
+
                     
         except serial.SerialException as e:
             print(f"serial port error: {e}")
